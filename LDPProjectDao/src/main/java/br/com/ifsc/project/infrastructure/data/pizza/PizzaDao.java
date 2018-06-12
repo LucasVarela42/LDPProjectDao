@@ -3,13 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.ifsc.project.infrastructure.data;
+package br.com.ifsc.project.infrastructure.data.pizza;
 
-import br.com.ifsc.project.domain.Pizza;
+import br.com.ifsc.project.domain.ingrediente.Ingrediente;
+import br.com.ifsc.project.domain.pizza.Pizza;
+import br.com.ifsc.project.infrastructure.ConnectionDB;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class PizzaDao implements IPizzaDao {
     @Override
     public Pizza create(Pizza pizza) throws SQLException {
         String sql = "INSERT INTO pizza(nome) VALUES(?);";
-        PreparedStatement pstmt = ConnectionDB.getConnection().prepareStatement(sql);
+        PreparedStatement pstmt = ConnectionDB.getConnection().prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
         pstmt.setString(1, pizza.getNome());
         pstmt.execute();
 
@@ -43,10 +44,9 @@ public class PizzaDao implements IPizzaDao {
         ResultSet rs = pstmt.executeQuery();
 
         List<Pizza> pizzas = new ArrayList<>();
+
         while (rs.next()) {
-            int id = rs.getInt("id");
-            String nome = rs.getString("nome");
-            Pizza p = new Pizza(id, nome);
+            Pizza p = new Pizza(rs.getInt("p.id"), rs.getString("p.nome"));
             pizzas.add(p);
         }
         rs.close();
@@ -56,12 +56,28 @@ public class PizzaDao implements IPizzaDao {
     }
 
     @Override
+    public Pizza retrieveBy(Integer id) throws SQLException {
+        String sql = "SELECT id, nome FROM pizza WHERE id = ?";
+        PreparedStatement pstmt = ConnectionDB.getConnection().prepareStatement(sql);
+        pstmt.setInt(1, id);
+        ResultSet rs = pstmt.executeQuery();
+
+        Pizza pizza = null;
+        if (rs.next()) {
+            pizza = new Pizza(rs.getInt("p.id"), rs.getString("p.nome"));
+        }
+        
+        ConnectionDB.commit();
+        return pizza;
+    }
+
+    @Override
     public Pizza update(Pizza pizza) throws SQLException {
         String sql = "UPDATE pizza SET nome = ? WHERE id = ?;";
-        PreparedStatement pstmt = ConnectionDB.getConnection().prepareStatement(sql);
+        PreparedStatement pstmt = ConnectionDB.getConnection().prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
         pstmt.setString(1, pizza.getNome());
         pstmt.setInt(2, pizza.getId());
-        pstmt.execute(sql);
+        pstmt.execute();
 
         ResultSet rs = pstmt.getGeneratedKeys();
 
@@ -78,7 +94,7 @@ public class PizzaDao implements IPizzaDao {
         String sql = "DELETE FROM pizza WHERE id = ?;";
         PreparedStatement pstmt = ConnectionDB.getConnection().prepareStatement(sql);
         pstmt.setInt(1, pizza.getId());
-        pstmt.execute(sql);
+        pstmt.execute();
         ConnectionDB.commit();
     }
 

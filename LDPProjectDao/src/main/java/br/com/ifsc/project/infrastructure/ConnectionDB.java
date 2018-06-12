@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.com.ifsc.project.infrastructure.data;
+package br.com.ifsc.project.infrastructure;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -32,14 +32,14 @@ public class ConnectionDB {
 
         try {
             //URL MySQL localhost
-            //url = "jdbc:mysql://localhost:3306/Pizzaria?useTimezone=true&serverTimezone=UTC";
+            url = "jdbc:mysql://localhost:3306/Pizzaria?useTimezone=true&serverTimezone=UTC";
 
             //URL POSTGRESQL localhost
-            url = "jdbc:postgresql://localhost:5432/Pizzaria?useTimezone=true&serverTimezone=UTC";
+            //url = "jdbc:postgresql://localhost:5432/Pizzaria?useTimezone=true&serverTimezone=UTC";
             
             //Mudar usuário
-            user = "postgres"; //User postgre = postgres | user mysql = root
-            pass = "aluno"; //Pass postgre = aluno | pass mysql = root/aluno
+            user = "root"; //User postgre = postgres | user mysql = root
+            pass = "root"; //Pass postgre = aluno | pass mysql = root/aluno
             
             connection = DriverManager.getConnection(url, user, pass);
             connection.setAutoCommit(false);
